@@ -107,7 +107,21 @@ for %%a in (*.png, *.jpeg, *.tga) do (
 :found_name
 cd ..
 echo %cd%
-for /f "delims=_" %%i in ("%current_name%") do ( set "sequence_name=%%i")
+
+set "sequence_name="
+set "cutout_name="
+:find_last
+for /f "tokens=1* delims=_" %%A in ("%current_name%") do (
+    if not ["!cutout_name!"] == [""] (
+        if not ["!sequence_name!"] == [""] (
+            set "sequence_name=!sequence_name!_"
+        )
+        set "sequence_name=!sequence_name!!cutout_name!"
+    )
+    set "cutout_name=%%A"
+    set "current_name=%%B"
+    goto find_last
+)
 
 call :encode_file "!parent_dir!\!sequence_name!_[hash]d!file_extension!", "!sequence_name!_!parent_dir!", "!fps!", "!format!"
 
